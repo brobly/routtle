@@ -1,8 +1,15 @@
 <template>
   <div id="routtle-box">
+    <div v-if="isSetting" id="modal-setting" class="modal">
+      <div class="setting-list d-flex" v-for="award of awards" :key="`setting_${award.reward_title}_${award.id}`">
+        <input v-model.lazy="award.reward_title" class="input_title" placeholder="請輸入獎品名稱" type="text" />
+        <input v-model.lazy="award.reward_description" class="input_description" placeholder="請輸入獎品詳情" type="text" />
+      </div>
+    </div>
     <div class="top_info">
       <h3 class="ticket">你擁有{{ ticket }}張抽獎卷</h3>
-      <!-- <a
+      <div class="d-flex">
+        <!-- <a
         href="javascript:void(0)"
         @click="triggerModalDrawRecord"
         class="btn_record_list"
@@ -10,20 +17,27 @@
         <font-awesome-icon icon="fa-solid fa-sheet-plastic" />
         <p>中獎記錄</p>
       </a> -->
+        <a
+          href="javascript:void(0)"
+          @click="isSetting = ! isSetting"
+          class="btn_setting"
+        >
+          <font-awesome-icon icon="fa-solid fa-pen-to-square" />
+          <p>抽獎設置</p>
+        </a>
+      </div>
     </div>
     <div class="anime_bg">
-      <img
-        v-if="isDrawEnd"
-        src="@/assets/sunburst.0838324a.svg"
-        alt=""
-      />
+      <img v-if="isDrawEnd" src="@/assets/sunburst.0838324a.svg" alt="" />
     </div>
     <div class="slot">
       <div class="slot__outer">
         <div class="slot__inner">
           <template v-if="isDrawEnd && !isDisable">
             <h2 class="">{{ awards[prize - 1].reward_title }}</h2>
-            <p v-if="awards[prize - 1].reward_description" class="mb-0">{{ awards[prize - 1].reward_description }}</p>
+            <p v-if="awards[prize - 1].reward_description" class="mb-0">
+              {{ awards[prize - 1].reward_description }}
+            </p>
           </template>
         </div>
       </div>
@@ -66,24 +80,31 @@
 
 <script>
 export default {
-  components: {
-   
-  },
+  components: {},
   data() {
     return {
       loading: false,
       isDrawEnd: false,
+      isSetting:false,
       ticket: 20,
       drawRecordData: {},
       draw_text: "開始抽獎",
       // awards: [],
       awards: [
-        { id: 1, reward_title: "名貴跑車法拉利一部", reward_description: "" },
-        { id: 2, reward_title: "維他奶6包", reward_description: "" },
-        { id: 3, reward_title: "日本雙人來回機票", reward_description: "" },
-        { id: 4, reward_title: "多1天大假", reward_description: "" },
-        { id: 5, reward_title: "現金獎$10000", reward_description: "" },
-        { id: 6, reward_title: "跟老闆合影", reward_description: "" },
+        {
+          id: 1,
+          reward_title: "名貴跑車法拉利一部",
+          reward_description: "3023年才能拿",
+        },
+        { id: 2, reward_title: "維他奶1包", reward_description: "" },
+        { id: 3, reward_title: "請大家食一餐", reward_description: "" },
+        {
+          id: 4,
+          reward_title: "向天大叫聖誕快樂！然後哇哈哈哈",
+          reward_description: "",
+        },
+        { id: 5, reward_title: "現金獎$10", reward_description: "" },
+        { id: 6, reward_title: "跟大家合影", reward_description: "" },
       ],
       prize: 0,
       isDisable: false,
@@ -110,6 +131,7 @@ export default {
         })
           .then((result) => {
             if (result) {
+              this.isDrawEnd = false;
               this.$refs.ref_routtle.style =
                 "transition: none; transform: rotate(15deg)";
               if (this.ticket) {
@@ -122,7 +144,7 @@ export default {
                     "transition: transform 4s ease-out; transform: rotate(" +
                     (1065 + (this.prize - 1) * 60 + this.randomNumber(1, 60)) +
                     "deg)";
-                  this.ticket--
+                  this.ticket--;
                   setTimeout(() => {
                     this.isDrawEnd = true;
                     this.isDisable = false;
@@ -164,19 +186,70 @@ export default {
       }
     },
   },
-  created() {
-
+   mounted() {
+    if (localStorage.awards) {
+      this.awards = JSON.parse(localStorage.awards);
+      console.log('awards',this.awards)
+    }
   },
+  watch: {
+    awards: {
+      handler(newValue) {
+        localStorage.setItem('awards',JSON.stringify(newValue));
+      },
+      deep: true,
+    }
+  }
 };
 </script>
 
 
 <style lang="scss">
+.d-flex {
+  display: flex !important;
+}
+a {
+  color: #fff;
+  text-decoration: none;
+  &:hover,
+  &:active {
+    color: #ffffff88;
+  }
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5 {
+  margin: 0px;
+}
+#modal-setting{
+    position: absolute;
+    z-index: 999;
+    right: 1.5rem;
+    top: 7rem;
+    .setting-list {
+      margin:0.5rem 0px;
+      input{
+        padding:0.5rem 1rem;
+      }
+      .input_title{
+        margin-right:1rem
+      }
+    }
+}
+.modal{
+  padding:1rem;
+  background: #e4edd4;
+  border-radius: 6px;
+
+}
 .top_info {
   position: relative;
   z-index: 10;
   display: flex;
-  width: 100%;
+  width: 97%;
   padding: 3rem 1.5rem 0;
   justify-content: space-between;
   align-items: center;
@@ -184,12 +257,17 @@ export default {
   }
   .btn_record_list {
     font-size: 1.2rem;
-    &:hover,
-    &:active {
-      color: #947b2f;
-    }
     svg {
       font-size: 2.2rem;
+    }
+  }
+
+  .btn_setting {
+    p {
+      margin-top: 5px;
+    }
+    svg {
+      font-size: 1.5rem;
     }
   }
 }
@@ -297,9 +375,11 @@ export default {
     h2 {
       font-size: 2.5rem;
       font-weight: bold;
+      margin: 0px;
     }
     p {
       font-size: 2rem;
+      margin: 0px;
     }
   }
 }
