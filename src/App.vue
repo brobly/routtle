@@ -1,13 +1,36 @@
 <template>
   <div id="routtle-box">
     <div v-if="isSetting" id="modal-setting" class="modal">
-      <div class="setting-list d-flex" v-for="award of awards" :key="`setting_${award.reward_title}_${award.id}`">
-        <input v-model.lazy="award.reward_title" class="input_title" placeholder="請輸入獎品名稱" type="text" />
-        <input v-model.lazy="award.reward_description" class="input_description" placeholder="請輸入獎品詳情" type="text" />
+       <input
+          v-model.lazy="top_title"
+          class="input_title"
+          style="margin: 0.5rem 0px;"
+          placeholder="請輸入標題"
+          type="text"
+        />
+      <div
+        class="setting-list d-flex"
+        v-for="award of awards"
+        :key="`setting_${award.reward_title}_${award.id}`"
+      >
+        <input
+          v-model.lazy="award.reward_title"
+          class="input_title"
+          placeholder="請輸入獎品名稱"
+          type="text"
+        />
+        <input
+          v-model.lazy="award.reward_description"
+          class="input_description"
+          placeholder="請輸入獎品詳情"
+          type="text"
+        />
       </div>
     </div>
     <div class="top_info">
-      <h3 class="ticket">你擁有{{ ticket }}張抽獎卷</h3>
+      <!-- <h3 class="ticket">你擁有{{ ticket }}張抽獎卷</h3> -->
+      <div></div>
+      <h1 class="top_title">{{ top_title }}</h1>
       <div class="d-flex">
         <!-- <a
         href="javascript:void(0)"
@@ -19,7 +42,7 @@
       </a> -->
         <a
           href="javascript:void(0)"
-          @click="isSetting = ! isSetting"
+          @click="isSetting = !isSetting"
           class="btn_setting"
         >
           <font-awesome-icon icon="fa-solid fa-pen-to-square" />
@@ -85,26 +108,34 @@ export default {
     return {
       loading: false,
       isDrawEnd: false,
-      isSetting:false,
+      isSetting: false,
       ticket: 20,
       drawRecordData: {},
       draw_text: "開始抽獎",
-      // awards: [],
+      top_title: "今晚吃什麼?",
       awards: [
         {
           id: 1,
-          reward_title: "名貴跑車法拉利一部",
-          reward_description: "3023年才能拿",
+          reward_title: "吃PIZZA HUT",
+          reward_description: "長享/翠怡 有優惠卷",
         },
-        { id: 2, reward_title: "維他奶1包", reward_description: "" },
-        { id: 3, reward_title: "請大家食一餐", reward_description: "" },
+        { id: 2, reward_title: "MOZ BUGAER", reward_description: "包好吃" },
+        {
+          id: 3,
+          reward_title: "肯德基",
+          reward_description: "$60 / $72   2人餐",
+        },
         {
           id: 4,
-          reward_title: "向天大叫聖誕快樂！然後哇哈哈哈",
-          reward_description: "",
+          reward_title: "吉野家打邊爐",
+          reward_description: "豆乳煱",
         },
-        { id: 5, reward_title: "現金獎$10", reward_description: "" },
-        { id: 6, reward_title: "跟大家合影", reward_description: "" },
+        {
+          id: 5,
+          reward_title: "大家樂/大快活/美心",
+          reward_description: "扒或邊爐",
+        },
+        { id: 6, reward_title: "三哥/譚仔", reward_description: "" },
       ],
       prize: 0,
       isDisable: false,
@@ -117,94 +148,101 @@ export default {
     },
     luckyStart() {
       if (!this.isDisable) {
-        this.$swal({
-          title: `你確定要使用1*抽獎卷嗎? \n你總共擁有${this.ticket}張`,
-          showCancelButton: true,
-          confirmButtonText: "提交",
-          cancelButtonText: "取消",
-          customClass: {
-            confirmButton: "btn btn-primary",
-            cancelButton: "btn btn-outline-danger ml-1",
-            title: "swal2-title",
-          },
-          buttonsStyling: false,
-        })
-          .then((result) => {
-            if (result) {
-              this.isDrawEnd = false;
-              this.$refs.ref_routtle.style =
-                "transition: none; transform: rotate(15deg)";
-              if (this.ticket) {
-                setTimeout(() => {
-                  this.loading = true;
-                  this.isDisable = true;
-                  this.draw_text = "正在抽獎";
-                  this.prize = this.randomNumber(1, 7);
-                  this.$refs.ref_routtle.style =
-                    "transition: transform 4s ease-out; transform: rotate(" +
-                    (1065 + (this.prize - 1) * 60 + this.randomNumber(1, 60)) +
-                    "deg)";
-                  this.ticket--;
-                  setTimeout(() => {
-                    this.isDrawEnd = true;
-                    this.isDisable = false;
-                    this.draw_text = "開始抽獎";
-                    this.fetchDrawRecord();
-                  }, 4000);
-                });
-              } else {
-                this.$swal({
-                  text: "你沒中有抽獎卷!",
-                  icon: "error",
-                  confirmButtonText: "確定",
-                  customClass: {
-                    confirmButton: "btn btn-primary",
-                  },
-                  showClass: {
-                    popup: "animate__animated animate__bounceIn",
-                  },
-                  buttonsStyling: false,
-                });
-              }
-            }
-          })
-          .catch((error) => {
-            this.loading = false;
-            this.$swal({
-              text: JSON.stringify(error.response.data.message),
-              icon: "error",
-              confirmButtonText: "確定",
-              customClass: {
-                confirmButton: "btn btn-primary",
-              },
-              showClass: {
-                popup: "animate__animated animate__bounceIn",
-              },
-              buttonsStyling: false,
-            });
-          });
+        // this.$swal({
+        //   title: `你確定要使用1*抽獎卷嗎? \n你總共擁有${this.ticket}張`,
+        //   showCancelButton: true,
+        //   confirmButtonText: "提交",
+        //   cancelButtonText: "取消",
+        //   customClass: {
+        //     confirmButton: "btn btn-primary",
+        //     cancelButton: "btn btn-outline-danger ml-1",
+        //     title: "swal2-title",
+        //   },
+        //   buttonsStyling: false,
+        // })
+        //   .then((result) => {
+        //     if (result) {
+        this.isDrawEnd = false;
+        this.$refs.ref_routtle.style =
+          "transition: none; transform: rotate(15deg)";
+        // if (this.ticket) {
+        setTimeout(() => {
+          this.loading = true;
+          this.isDisable = true;
+          this.draw_text = "正在抽獎";
+          this.prize = this.randomNumber(1, 7);
+          this.$refs.ref_routtle.style =
+            "transition: transform 4s ease-out; transform: rotate(" +
+            (1065 + (this.prize - 1) * 60 + this.randomNumber(1, 60)) +
+            "deg)";
+          // this.ticket--;
+          setTimeout(() => {
+            this.isDrawEnd = true;
+            this.isDisable = false;
+            this.draw_text = "開始抽獎";
+            this.fetchDrawRecord();
+          }, 4000);
+        });
+        // } else {
+        //   this.$swal({
+        //     text: "你沒中有抽獎卷!",
+        //     icon: "error",
+        //     confirmButtonText: "確定",
+        //     customClass: {
+        //       confirmButton: "btn btn-primary",
+        //     },
+        //     showClass: {
+        //       popup: "animate__animated animate__bounceIn",
+        //     },
+        //     buttonsStyling: false,
+        //   });
+        // }
+        // }
+        // })
+        // .catch((error) => {
+        //   this.loading = false;
+        //   this.$swal({
+        //     text: JSON.stringify(error.response.data.message),
+        //     icon: "error",
+        //     confirmButtonText: "確定",
+        //     customClass: {
+        //       confirmButton: "btn btn-primary",
+        //     },
+        //     showClass: {
+        //       popup: "animate__animated animate__bounceIn",
+        //     },
+        //     buttonsStyling: false,
+        //   });
+        // });
       }
     },
   },
-   mounted() {
+  mounted() {
     if (localStorage.awards) {
       this.awards = JSON.parse(localStorage.awards);
-      console.log('awards',this.awards)
+      console.log("awards", this.awards);
     }
   },
   watch: {
     awards: {
       handler(newValue) {
-        localStorage.setItem('awards',JSON.stringify(newValue));
+        localStorage.setItem("awards", JSON.stringify(newValue));
       },
       deep: true,
-    }
-  }
+    },
+  },
 };
 </script>
 
 
 <style lang="scss">
+body {
+  * {
+    // color: #471247;
+    color:#5e335e;
+    text-shadow: 0px 1px #ffffff;
+  }
+}
 .d-flex {
   display: flex !important;
 }
@@ -224,26 +262,26 @@ h4,
 h5 {
   margin: 0px;
 }
-#modal-setting{
-    position: absolute;
-    z-index: 999;
-    right: 1.5rem;
-    top: 7rem;
-    .setting-list {
-      margin:0.5rem 0px;
-      input{
-        padding:0.5rem 1rem;
-      }
-      .input_title{
-        margin-right:1rem
-      }
+
+#modal-setting {
+  position: absolute;
+  z-index: 999;
+  right: 1.5rem;
+  top: 7rem;
+  .setting-list {
+    margin: 0.5rem 0px;
+    input {
+      padding: 0.5rem 1rem;
     }
+    .input_title {
+      margin-right: 1rem;
+    }
+  }
 }
-.modal{
-  padding:1rem;
+.modal {
+  padding: 1rem;
   background: #e4edd4;
   border-radius: 6px;
-
 }
 .top_info {
   position: relative;
@@ -261,7 +299,9 @@ h5 {
       font-size: 2.2rem;
     }
   }
-
+  .top_title {
+    font-size: 48px;
+  }
   .btn_setting {
     p {
       margin-top: 5px;
@@ -281,7 +321,6 @@ h5 {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #fff;
   width: 100%;
   min-height: 1000px;
   background: linear-gradient(
@@ -371,7 +410,6 @@ h5 {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    color: #471247;
     h2 {
       font-size: 2.5rem;
       font-weight: bold;
@@ -429,7 +467,10 @@ h5 {
           pointer-events: all !important;
           .button_inline {
             background: #e5e5e5;
-            color: rgb(200, 200, 200);
+            span {
+              color: rgb(200, 200, 200);
+              text-shadow: 0px 0px;
+            }
           }
         }
       }
@@ -439,7 +480,10 @@ h5 {
         &:hover {
           background: #eb4d4d;
           .button_inline {
-            color: #fede81;
+            span {
+              color: #fede81;
+              text-shadow: 0px 0px;
+            }
             background: #eb4d4d;
           }
         }
@@ -564,7 +608,6 @@ h5 {
       width: 324px;
       height: 324px;
       border: 1px solid #fede81;
-
       transform: rotate(15deg);
       .prize_background {
         position: absolute;
@@ -686,7 +729,7 @@ h5 {
         justify-content: center;
         align-items: center;
         border-radius: 100%;
-        color: #ffbe04;
+        color: #ffbe04 !important;
         font-size: 18px;
         background: #ca1518;
         width: 80%;
@@ -696,6 +739,8 @@ h5 {
         span {
           padding: 0 10px;
           line-height: 1.2;
+          color: #fede81;
+          text-shadow: 0px 0px;
         }
       }
     }
