@@ -1,13 +1,13 @@
 <template>
   <div id="routtle-box">
     <div v-if="isSetting" id="modal-setting" class="modal">
-       <input
-          v-model.lazy="top_title"
-          class="input_title"
-          style="margin: 0.5rem 0px;"
-          placeholder="請輸入標題"
-          type="text"
-        />
+      <input
+        v-model.lazy="top_title"
+        class="input_title"
+        style="margin: 0.5rem 0px"
+        placeholder="請輸入標題"
+        type="text"
+      />
       <div
         class="setting-list d-flex"
         v-for="award of awards"
@@ -24,6 +24,12 @@
           class="input_description"
           placeholder="請輸入獎品詳情"
           type="text"
+        />
+        <input
+          v-model.lazy="award.rate"
+          class="input_rate"
+          type="number"
+          placeholder="請輸入中獎率"
         />
       </div>
     </div>
@@ -112,30 +118,38 @@ export default {
       ticket: 20,
       drawRecordData: {},
       draw_text: "開始抽獎",
-      top_title: "今晚吃什麼?",
+      top_title: "寶石礦場大抽獎",
       awards: [
         {
           id: 1,
-          reward_title: "吃PIZZA HUT",
-          reward_description: "長享/翠怡 有優惠卷",
+          reward_title: "鑽石",
+          reward_description: "",
+          rate: 5,
         },
-        { id: 2, reward_title: "MOZ BUGAER", reward_description: "包好吃" },
+        { id: 2, reward_title: "翡翠", reward_description: "", rate: 10 },
         {
           id: 3,
-          reward_title: "肯德基",
-          reward_description: "$60 / $72   2人餐",
+          reward_title: "藍寶石",
+          reward_description: "",
+          rate: 20,
         },
         {
           id: 4,
-          reward_title: "吉野家打邊爐",
-          reward_description: "豆乳煱",
+          reward_title: "紅寶石",
+          reward_description: "",
+          rate: 20,
         },
         {
           id: 5,
-          reward_title: "大家樂/大快活/美心",
-          reward_description: "扒或邊爐",
+          reward_title: "黃金",
+          reward_description: "",
+          rate: 35,
         },
-        { id: 6, reward_title: "三哥/譚仔", reward_description: "" },
+        { id: 6,
+          reward_title: "鐵",
+          reward_description: "",
+          rate:50
+        },
       ],
       prize: 0,
       isDisable: false,
@@ -145,6 +159,17 @@ export default {
   methods: {
     randomNumber(min, max) {
       return Math.floor(Math.random() * (max - min) + min);
+    },
+    rateCalculate(){
+      for(var i=0; i<this.awards.length;i++){
+        var a = Math.round(Math.random()*100)
+        if(i == 5){
+          this.prize = 6
+        }else if( a >= (100 - this.awards[i].rate)){
+          this.prize = this.awards[i].id
+          return
+        }
+      }
     },
     luckyStart() {
       if (!this.isDisable) {
@@ -170,7 +195,8 @@ export default {
           this.loading = true;
           this.isDisable = true;
           this.draw_text = "正在抽獎";
-          this.prize = this.randomNumber(1, 7);
+          // this.prize = this.randomNumber(1, 7);
+          this.rateCalculate()
           this.$refs.ref_routtle.style =
             "transition: transform 4s ease-out; transform: rotate(" +
             (1065 + (this.prize - 1) * 60 + this.randomNumber(1, 60)) +
@@ -180,7 +206,7 @@ export default {
             this.isDrawEnd = true;
             this.isDisable = false;
             this.draw_text = "開始抽獎";
-            this.fetchDrawRecord();
+            // this.fetchDrawRecord();
           }, 4000);
         });
         // } else {
@@ -239,7 +265,7 @@ export default {
 body {
   * {
     // color: #471247;
-    color:#5e335e;
+    color: #5e335e;
     text-shadow: 0px 1px #ffffff;
   }
 }
@@ -272,9 +298,10 @@ h5 {
     margin: 0.5rem 0px;
     input {
       padding: 0.5rem 1rem;
-    }
-    .input_title {
       margin-right: 1rem;
+      &:last-child {
+        margin-right: 0rem;
+      }
     }
   }
 }
