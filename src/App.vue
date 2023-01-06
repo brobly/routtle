@@ -8,6 +8,9 @@
         placeholder="請輸入標題"
         type="text"
       />
+      <div>
+        <input type="checkbox" v-modal="isRate" checked id="rate" /><label for="rate">是否根據抽獎率?</label>
+      </div>
       <div
         class="setting-list d-flex"
         v-for="award of awards"
@@ -114,6 +117,7 @@ export default {
     return {
       loading: false,
       isDrawEnd: false,
+      isRate:true,
       isSetting: false,
       ticket: 20,
       drawRecordData: {},
@@ -145,11 +149,7 @@ export default {
           reward_description: "",
           rate: 35,
         },
-        { id: 6,
-          reward_title: "鐵",
-          reward_description: "",
-          rate:50
-        },
+        { id: 6, reward_title: "鐵", reward_description: "", rate: 50 },
       ],
       prize: 0,
       isDisable: false,
@@ -160,14 +160,14 @@ export default {
     randomNumber(min, max) {
       return Math.floor(Math.random() * (max - min) + min);
     },
-    rateCalculate(){
-      for(var i=0; i<this.awards.length;i++){
-        var a = Math.round(Math.random()*100)
-        if(i == 5){
-          this.prize = 6
-        }else if( a >= (100 - this.awards[i].rate)){
-          this.prize = this.awards[i].id
-          return
+    rateCalculate() {
+      for (var i = 0; i < this.awards.length; i++) {
+        var a = Math.round(Math.random() * 100);
+        if (i == 5) {
+          this.prize = 6;
+        } else if (a >= 100 - this.awards[i].rate) {
+          this.prize = this.awards[i].id;
+          return;
         }
       }
     },
@@ -195,8 +195,12 @@ export default {
           this.loading = true;
           this.isDisable = true;
           this.draw_text = "正在抽獎";
-          // this.prize = this.randomNumber(1, 7);
-          this.rateCalculate()
+          if(this.isRate){
+            this.rateCalculate();
+          }else{
+            this.prize = this.randomNumber(1, 7);
+          }
+          
           this.$refs.ref_routtle.style =
             "transition: transform 4s ease-out; transform: rotate(" +
             (1065 + (this.prize - 1) * 60 + this.randomNumber(1, 60)) +
@@ -294,11 +298,14 @@ h5 {
   z-index: 999;
   right: 1.5rem;
   top: 7rem;
+  max-width: 500px;
+  width: 100%;
   .setting-list {
     margin: 0.5rem 0px;
     input {
       padding: 0.5rem 1rem;
       margin-right: 1rem;
+      width: 33%;
       &:last-child {
         margin-right: 0rem;
       }
@@ -314,8 +321,8 @@ h5 {
   position: relative;
   z-index: 10;
   display: flex;
-  width: 97%;
-  padding: 3rem 1.5rem 0;
+  width: 100%;
+  padding: 3rem 0rem;
   justify-content: space-between;
   align-items: center;
   .ticket {
@@ -330,6 +337,9 @@ h5 {
     font-size: 48px;
   }
   .btn_setting {
+    position: absolute;
+    top: 50px;
+    right: 2rem;
     p {
       margin-top: 5px;
     }
@@ -798,13 +808,24 @@ h5 {
 @media screen and (max-width: 575px) {
   .routtle {
     transform: scale(0.95);
-  }
 
+    padding-top: 3rem;
+  }
+  .top_info {
+    padding: 3rem 0rem 0;
+    .top_title {
+      margin-top: 60px;
+    }
+  }
+  #modal-setting {
+    width: calc(100% - 2rem);
+    right: 0px;
+  }
+  .anime_bg{transform: translate(-50%, -20%);}
   .slot {
     .slot__outer {
-      width: calc(100% - 4rem);
-      margin: 3rem 2rem 0;
-
+      width: calc(100% - 5rem);
+      margin: 3rem 1rem 0;
       background-size: 100vw 10rem;
       .slot__inner {
         h2 {
